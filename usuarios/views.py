@@ -3,6 +3,7 @@ from django.http import HttpResponse
 from django.contrib.auth.models import User
 from django.contrib.messages import constants
 from django.contrib import messages
+from django.contrib.auth import authenticate, login
 
 # Create your views here.
 def cadastro(request):
@@ -31,8 +32,24 @@ def cadastro(request):
                 password=senha
         )
             messages.add_message(request, constants.SUCCESS, 'Usuário cadastrado com sucesso!')
-            return redirect('usuarios/cadastro/')
+            return redirect('/usuarios/cadastro/')
         except:
-            messages.add_message(request, constants.ERROR, 'Erro interno, contato um administrador.')
-            return redirect('usuarios/cadastro/')
+            messages.add_message(request, constants.ERROR, 'Erro interno do sistema, contato um administrador.')
+            return redirect('/usuarios/cadastro/')
+        
+def logar(request):
+    if request.method == "GET":
+        return render(request, 'login.html')
+    elif request.method == "POST":
+        username = request.POST.get('username')
+        senha = request.POST.get('senha')
+
+        user = authenticate(username=username, password=senha)
+
+        if user:
+            login(request, user)
+            return redirect('/')
+        else:
+            messages.add_message(request, constants.ERROR, 'Nome de usuário ou senha inválidos.')
+            return redirect('/usuarios/login')
         

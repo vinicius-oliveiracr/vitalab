@@ -4,7 +4,8 @@ from django.db.models.functions import Concat
 from django.db.models import Value
 from django.contrib.admin.views.decorators import staff_member_required
 from exames.models import SolicitacaoExame
-from django.http import HttpResponse
+from django.http import HttpResponse, FileResponse
+from .utils import gerar_pdf_exames, gerar_senha_aleatória
 
 # Create your views here.
 
@@ -44,3 +45,16 @@ def proxy_pdf(request, exame_id):
     response = exame.resultado.open()
 
     return HttpResponse(response)
+
+
+def gerar_senha(request, exame_id):
+    exame = SolicitacaoExame.objects.get(id=exame_id)
+
+    if exame.senha:
+        return FileResponse(gerar_pdf_exames(exame.exame.nome, exame.usuario.first_name, exame.senha), filename="token.pdf")
+
+    exame.senha = gerar_senha_aleatória(9)
+    exame.save()
+    return FileResponse(gerar_pdf_exames(exame.exame.nome, exame.usuario.first_name, exame.senha), filename="token.pdf")
+
+

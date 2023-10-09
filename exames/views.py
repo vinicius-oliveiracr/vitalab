@@ -77,6 +77,10 @@ def permissao_resultado(request, exame_id):
     exame = SolicitacaoExame.objects.get(id=exame_id)
 
     if not exame.requer_senha:
+        if not exame.resultado:
+            messages.add_message(request, constants.ERROR, 'Resultado não está disponível, entre em contato com o laboratório.')
+            return redirect('exames/solicitar_exames/')
+
         return redirect(exame.resultado.url)
     
     return redirect(f'/exames/solicitar_senha_exame/{exame_id}')

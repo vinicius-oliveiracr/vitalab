@@ -22,6 +22,10 @@ def cadastro(request):
         if len(senha) < 8:
             messages.add_message(request, constants.ERROR, 'Sua senha deve ter no mínimo 8 caracteres.')
             return redirect('/usuarios/cadastro/')
+        if User.objects.filter(username=username):
+            messages.add_message(request, constants.ERROR, 'Nome de usuário já cadastrado.')
+            return redirect('/usuarios/cadastro/')
+        
         
         try:
             user = User.objects.create_user(
